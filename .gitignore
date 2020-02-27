@@ -109,3 +109,5 @@ dist
 # Jetbrains IDE  Metadata
 .idea
 
+# Metal Archives data
+*.csv
