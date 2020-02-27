@@ -14,3 +14,11 @@ export type CleanedUpMetalArchivesEntry = Omit<
   MetalArchivesEntry,
   "Formed in" | "Location" | "Status" | "Years active"
 >;
+
+export type WithParsedYears = Omit<
+  CleanedUpMetalArchivesEntry,
+  "First release" | "Latest release"
+> & {
+  firstRelease: number;
+  latestRelease: number;
+};
