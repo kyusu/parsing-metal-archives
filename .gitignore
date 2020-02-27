@@ -111,3 +111,6 @@ dist
 
 # Metal Archives data
 *.csv
+
+# Compiler output
+build
