@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "importHelpers": true,
+    "jsx": "react",
+    "alwaysStrict": true,
+    "sourceMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "declaration": true,
+    "skipLibCheck": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "preserveSymlinks": true,
+    "noEmit": false,
+    "lib": ["es2018"],
+    "strictFunctionTypes": true,
+    "strict": true,
+    "noImplicitReturns": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noEmitOnError": false,
+    "allowJs": false,
+    "checkJs": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "stripInternal": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true
+  },
+  "include": [
+    "src/**/*",
+    "__tests__/**/*"
+  ]
+}
