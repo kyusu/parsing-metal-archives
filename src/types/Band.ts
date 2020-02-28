@@ -38,3 +38,16 @@ export type WithCountryCode = Omit<WithCountryCodes, "countryCodes"> & {
 export type WithValidatedCountryCode = Omit<WithCountryCode, "countryCode"> & {
   countryCode: string;
 };
+
+export type Genres =
+  | "Black Metal"
+  | "Death Metal"
+  | "Doom Metal"
+  | "Heavy Metal"
+  | "Power Metal"
+  | "Speed Metal"
+  | "Thrash Metal";
+
+export type WithGenreList = Omit<WithValidatedCountryCode, "Genre"> & {
+  genres: Genres[];
+};

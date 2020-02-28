@@ -5,19 +5,49 @@ import { filter, map } from "rxjs/operators";
 import {
   CleanedUpMetalArchivesEntry,
   CountryCode,
+  Genres,
   MetalArchivesEntry,
   WithCountryCode,
   WithCountryCodes,
+  WithGenreList,
   WithParsedYears,
   WithValidatedCountryCode
 } from "./types/Band";
 import countryMapper from "country-mapper";
 import { getCode } from "country-list";
 import { getOrElse, isRight, left, right } from "fp-ts/lib/Either";
-import { isMetal } from "ordo-ab-chao";
+import {
+  isMetal,
+  isBlackMetal,
+  isDeathMetal,
+  isDoomMetal,
+  isHeavyMetal,
+  isPowerMetal,
+  isSpeedMetal,
+  isThrashMetal
+} from "ordo-ab-chao";
 import countryBlackList from "./countryBlackList.json";
+import { none, Option, some } from "fp-ts/lib/Option";
+import { absurd } from "fp-ts/lib/function";
 
 const metalArchivesExport: "band_20190607.csv" = "band_20190607.csv";
+
+const classifiers: ((genre: string) => Option<Genres>)[] = [
+  (genre: string): Option<Genres> =>
+    isBlackMetal.runWith(genre) ? some("Black Metal") : none,
+  (genre: string): Option<Genres> =>
+    isDeathMetal.runWith(genre) ? some("Death Metal") : none,
+  (genre: string): Option<Genres> =>
+    isDoomMetal.runWith(genre) ? some("Doom Metal") : none,
+  (genre: string): Option<Genres> =>
+    isHeavyMetal.runWith(genre) ? some("Heavy Metal") : none,
+  (genre: string): Option<Genres> =>
+    isPowerMetal.runWith(genre) ? some("Power Metal") : none,
+  (genre: string): Option<Genres> =>
+    isSpeedMetal.runWith(genre) ? some("Speed Metal") : none,
+  (genre: string): Option<Genres> =>
+    isThrashMetal.runWith(genre) ? some("Thrash Metal") : none
+];
 
 const locationOfMetalArchivesExport = path.join(
   __dirname,
@@ -26,7 +56,7 @@ const locationOfMetalArchivesExport = path.join(
   metalArchivesExport
 );
 
-const toString = (input: WithValidatedCountryCode): string =>
+const toString = (input: WithGenreList): string =>
   JSON.stringify(input, null, 4);
 
 const toCleanedUp = (
@@ -110,6 +140,32 @@ const countryIsNotOnBlackList = (input: WithValidatedCountryCode): boolean =>
 const bandIsAMetalBand = (input: WithValidatedCountryCode): boolean =>
   isMetal.isMetal.runWith(input.Genre);
 
+const getGenres = (input: WithValidatedCountryCode): WithGenreList => {
+  const optGenres: Option<Genres>[] = classifiers.map(fn => fn(input.Genre));
+  const genres = optGenres.reduce((acc: Genres[], value: Option<Genres>) => {
+    switch (value._tag) {
+      case "None":
+        break;
+      case "Some":
+        acc.push(value.value);
+        break;
+      default:
+        absurd(value);
+        break;
+    }
+    return acc;
+  }, []);
+  return {
+    "Band name": input["Band name"],
+    firstRelease: input.firstRelease,
+    latestRelease: input.latestRelease,
+    countryCode: input.countryCode,
+    genres: genres
+  };
+};
+
+const hasNoEmptyGenre = (input: WithGenreList) => input.genres.length > 0;
+
 const obs = getBandStream(locationOfMetalArchivesExport)
   .pipe(map(toCleanedUp))
   .pipe(map(parseReleaseDates))
@@ -120,6 +176,8 @@ const obs = getBandStream(locationOfMetalArchivesExport)
   .pipe(map(unpackCountryCode))
   .pipe(filter(countryIsNotOnBlackList))
   .pipe(filter(bandIsAMetalBand))
+  .pipe(map(getGenres))
+  .pipe(filter(hasNoEmptyGenre))
   .pipe(map(toString));
 
 rxToStream(obs).pipe(process.stdout);
