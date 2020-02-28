@@ -15,6 +15,7 @@ import countryMapper from "country-mapper";
 import { getCode } from "country-list";
 import { getOrElse, isRight, left, right } from "fp-ts/lib/Either";
 import { isMetal } from "ordo-ab-chao";
+import countryBlackList from "./countryBlackList.json";
 
 const metalArchivesExport: "band_20190607.csv" = "band_20190607.csv";
 
@@ -103,6 +104,9 @@ const unpackCountryCode = (
   countryCode: orEmptyString(input.countryCode)
 });
 
+const countryIsNotOnBlackList = (input: WithValidatedCountryCode): boolean =>
+  !countryBlackList.includes(input.countryCode);
+
 const bandIsAMetalBand = (input: WithValidatedCountryCode): boolean =>
   isMetal.isMetal.runWith(input.Genre);
 
@@ -114,6 +118,7 @@ const obs = getBandStream(locationOfMetalArchivesExport)
   .pipe(map(getCountryCode))
   .pipe(filter(countryCodeIsRight))
   .pipe(map(unpackCountryCode))
+  .pipe(filter(countryIsNotOnBlackList))
   .pipe(filter(bandIsAMetalBand))
   .pipe(map(toString));
 
