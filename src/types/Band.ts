@@ -1,3 +1,5 @@
+import { Either } from "fp-ts/lib/Either";
+
 export type MetalArchivesEntry = {
   "Band name": string;
   Genre: string;
@@ -21,4 +23,18 @@ export type WithParsedYears = Omit<
 > & {
   firstRelease: number;
   latestRelease: number;
+};
+
+export type WithCountryCodes = Omit<WithParsedYears, "Country"> & {
+  countryCodes: Set<string>;
+};
+
+export type CountryCode = Either<"Country could not be parsed", string>;
+
+export type WithCountryCode = Omit<WithCountryCodes, "countryCodes"> & {
+  countryCode: CountryCode;
+};
+
+export type WithValidatedCountryCode = Omit<WithCountryCode, "countryCode"> & {
+  countryCode: string;
 };
