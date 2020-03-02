@@ -12,8 +12,15 @@ export type MetalArchivesEntry = {
   "Latest release": string;
 };
 
-export type WithParsedYears = {
+export type WrappedMetalArchivesEntry = {
   maEntry: MetalArchivesEntry;
+};
+
+export type FilteredOutEntry = WrappedMetalArchivesEntry & {
+  reason: string;
+};
+
+export type WithParsedYears = WrappedMetalArchivesEntry & {
   firstRelease: number;
   latestRelease: number;
 };
