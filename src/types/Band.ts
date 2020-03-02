@@ -12,20 +12,13 @@ export type MetalArchivesEntry = {
   "Latest release": string;
 };
 
-export type CleanedUpMetalArchivesEntry = Omit<
-  MetalArchivesEntry,
-  "Formed in" | "Location" | "Status" | "Years active"
->;
-
-export type WithParsedYears = Omit<
-  CleanedUpMetalArchivesEntry,
-  "First release" | "Latest release"
-> & {
+export type WithParsedYears = {
+  maEntry: MetalArchivesEntry;
   firstRelease: number;
   latestRelease: number;
 };
 
-export type WithCountryCodes = Omit<WithParsedYears, "Country"> & {
+export type WithCountryCodes = WithParsedYears & {
   countryCodes: Set<string>;
 };
 
@@ -48,6 +41,6 @@ export type Genres =
   | "Speed Metal"
   | "Thrash Metal";
 
-export type WithGenreList = Omit<WithValidatedCountryCode, "Genre"> & {
+export type WithGenreList = WithValidatedCountryCode & {
   genres: Genres[];
 };

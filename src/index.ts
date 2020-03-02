@@ -3,7 +3,6 @@ import { rxToStream } from "rxjs-stream";
 import path from "path";
 import { filter, map } from "rxjs/operators";
 import {
-  CleanedUpMetalArchivesEntry,
   CountryCode,
   Genres,
   MetalArchivesEntry,
@@ -57,24 +56,20 @@ const locationOfMetalArchivesExport = path.join(
 );
 
 const toString = (input: WithGenreList): string =>
-  JSON.stringify(input, null, 4);
+  JSON.stringify(
+    {
+      firstRelease: input.firstRelease,
+      latestRelease: input.latestRelease,
+      countryCode: input.countryCode,
+      genres: input.genres,
+      bandName: input.maEntry["Band name"]
+    },
+    null,
+    4
+  );
 
-const toCleanedUp = (
-  input: MetalArchivesEntry
-): CleanedUpMetalArchivesEntry => ({
-  "Band name": input["Band name"],
-  Genre: input.Genre,
-  Country: input.Country,
-  "First release": input["First release"],
-  "Latest release": input["Latest release"]
-});
-
-const parseReleaseDates = (
-  input: CleanedUpMetalArchivesEntry
-): WithParsedYears => ({
-  "Band name": input["Band name"],
-  Genre: input.Genre,
-  Country: input.Country,
+const parseReleaseDates = (input: MetalArchivesEntry): WithParsedYears => ({
+  maEntry: input,
   firstRelease: parseInt(input["First release"], 10),
   latestRelease: parseInt(input["Latest release"], 10)
 });
@@ -92,13 +87,12 @@ const customCountryMapper = (country: string): string | undefined =>
 
 const getCountryCodes = (input: WithParsedYears): WithCountryCodes => {
   const codes: string[] = [
-    countryMapper.convert(input.Country) || "",
-    getCode(input.Country) || "",
-    customCountryMapper(input.Country) || ""
+    countryMapper.convert(input.maEntry.Country) || "",
+    getCode(input.maEntry.Country) || "",
+    customCountryMapper(input.maEntry.Country) || ""
   ].filter(code => !!code);
   return {
-    "Band name": input["Band name"],
-    Genre: input.Genre,
+    maEntry: input.maEntry,
     firstRelease: input.firstRelease,
     latestRelease: input.latestRelease,
     countryCodes: new Set(codes)
@@ -111,8 +105,7 @@ const getCountryCode = (input: WithCountryCodes): WithCountryCode => {
       ? right(input.countryCodes.values().next().value)
       : left("Country could not be parsed");
   return {
-    "Band name": input["Band name"],
-    Genre: input.Genre,
+    maEntry: input.maEntry,
     firstRelease: input.firstRelease,
     latestRelease: input.latestRelease,
     countryCode: code
@@ -127,8 +120,7 @@ const orEmptyString: (ma: CountryCode) => string = getOrElse(() => "");
 const unpackCountryCode = (
   input: WithCountryCode
 ): WithValidatedCountryCode => ({
-  "Band name": input["Band name"],
-  Genre: input.Genre,
+  maEntry: input.maEntry,
   latestRelease: input.latestRelease,
   firstRelease: input.firstRelease,
   countryCode: orEmptyString(input.countryCode)
@@ -138,10 +130,12 @@ const countryIsNotOnBlackList = (input: WithValidatedCountryCode): boolean =>
   !countryBlackList.includes(input.countryCode);
 
 const bandIsAMetalBand = (input: WithValidatedCountryCode): boolean =>
-  isMetal.isMetal.runWith(input.Genre);
+  isMetal.isMetal.runWith(input.maEntry.Genre);
 
 const getGenres = (input: WithValidatedCountryCode): WithGenreList => {
-  const optGenres: Option<Genres>[] = classifiers.map(fn => fn(input.Genre));
+  const optGenres: Option<Genres>[] = classifiers.map(fn =>
+    fn(input.maEntry.Genre)
+  );
   const genres = optGenres.reduce((acc: Genres[], value: Option<Genres>) => {
     switch (value._tag) {
       case "None":
@@ -156,7 +150,7 @@ const getGenres = (input: WithValidatedCountryCode): WithGenreList => {
     return acc;
   }, []);
   return {
-    "Band name": input["Band name"],
+    maEntry: input.maEntry,
     firstRelease: input.firstRelease,
     latestRelease: input.latestRelease,
     countryCode: input.countryCode,
@@ -167,7 +161,6 @@ const getGenres = (input: WithValidatedCountryCode): WithGenreList => {
 const hasNoEmptyGenre = (input: WithGenreList) => input.genres.length > 0;
 
 const obs = getBandStream(locationOfMetalArchivesExport)
-  .pipe(map(toCleanedUp))
   .pipe(map(parseReleaseDates))
   .pipe(filter(hasReleases))
   .pipe(map(getCountryCodes))
