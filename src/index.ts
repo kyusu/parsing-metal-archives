@@ -1,9 +1,10 @@
 import getBandStream from "./readFromStream";
 import { rxToStream } from "rxjs-stream";
 import path from "path";
-import { filter, map } from "rxjs/operators";
+import { map as rMap } from "rxjs/operators";
 import {
   CountryCode,
+  FilteredOutEntry,
   Genres,
   MetalArchivesEntry,
   WithCountryCode,
@@ -14,13 +15,20 @@ import {
 } from "./types/Band";
 import countryMapper from "country-mapper";
 import { getCode } from "country-list";
-import { getOrElse, isRight, left, right } from "fp-ts/lib/Either";
 import {
-  isMetal,
+  chain,
+  Either,
+  getOrElse,
+  left,
+  map as eMap,
+  right
+} from "fp-ts/lib/Either";
+import {
   isBlackMetal,
   isDeathMetal,
   isDoomMetal,
   isHeavyMetal,
+  isMetal,
   isPowerMetal,
   isSpeedMetal,
   isThrashMetal
@@ -55,18 +63,33 @@ const locationOfMetalArchivesExport = path.join(
   metalArchivesExport
 );
 
-const toString = (input: WithGenreList): string =>
-  JSON.stringify(
-    {
-      firstRelease: input.firstRelease,
-      latestRelease: input.latestRelease,
-      countryCode: input.countryCode,
-      genres: input.genres,
-      bandName: input.maEntry["Band name"]
-    },
-    null,
-    4
-  );
+const toString = (input: Either<FilteredOutEntry, WithGenreList>): string => {
+  switch (input._tag) {
+    case "Left":
+      return JSON.stringify(
+        {
+          bandName: input.left.maEntry["Band name"],
+          reason: input.left.reason
+        },
+        null,
+        4
+      );
+    case "Right":
+      return JSON.stringify(
+        {
+          firstRelease: input.right.firstRelease,
+          latestRelease: input.right.latestRelease,
+          countryCode: input.right.countryCode,
+          genres: input.right.genres,
+          bandName: input.right.maEntry["Band name"]
+        },
+        null,
+        4
+      );
+    default:
+      return absurd(input);
+  }
+};
 
 const parseReleaseDates = (input: MetalArchivesEntry): WithParsedYears => ({
   maEntry: input,
@@ -74,8 +97,15 @@ const parseReleaseDates = (input: MetalArchivesEntry): WithParsedYears => ({
   latestRelease: parseInt(input["Latest release"], 10)
 });
 
-const hasReleases = (input: WithParsedYears): boolean =>
-  !(Number.isNaN(input.firstRelease) && Number.isNaN(input.latestRelease));
+const hasReleases = (
+  input: WithParsedYears
+): Either<FilteredOutEntry, WithParsedYears> =>
+  Number.isNaN(input.firstRelease) && Number.isNaN(input.latestRelease)
+    ? left({
+        reason: "No releases found",
+        maEntry: input.maEntry
+      })
+    : right(input);
 
 const customCountryMapping: Record<string, string> = {
   "Korea, South": "KR",
@@ -85,35 +115,42 @@ const customCountryMapping: Record<string, string> = {
 const customCountryMapper = (country: string): string | undefined =>
   customCountryMapping[country];
 
-const getCountryCodes = (input: WithParsedYears): WithCountryCodes => {
-  const codes: string[] = [
-    countryMapper.convert(input.maEntry.Country) || "",
-    getCode(input.maEntry.Country) || "",
-    customCountryMapper(input.maEntry.Country) || ""
-  ].filter(code => !!code);
-  return {
-    maEntry: input.maEntry,
-    firstRelease: input.firstRelease,
-    latestRelease: input.latestRelease,
-    countryCodes: new Set(codes)
-  };
+const getCountryCodes = (
+  input: Either<FilteredOutEntry, WithParsedYears>
+): Either<FilteredOutEntry, WithCountryCodes> => {
+  const mapper = eMap((entry: WithParsedYears) => {
+    const codes: string[] = [
+      countryMapper.convert(entry.maEntry.Country) || "",
+      getCode(entry.maEntry.Country) || "",
+      customCountryMapper(entry.maEntry.Country) || ""
+    ].filter(code => !!code);
+    return {
+      maEntry: entry.maEntry,
+      firstRelease: entry.firstRelease,
+      latestRelease: entry.latestRelease,
+      countryCodes: new Set(codes)
+    };
+  });
+  return mapper(input);
 };
 
-const getCountryCode = (input: WithCountryCodes): WithCountryCode => {
-  const code: CountryCode =
-    input.countryCodes.size == 1
-      ? right(input.countryCodes.values().next().value)
-      : left("Country could not be parsed");
-  return {
-    maEntry: input.maEntry,
-    firstRelease: input.firstRelease,
-    latestRelease: input.latestRelease,
-    countryCode: code
-  };
+const getCountryCode = (
+  input: Either<FilteredOutEntry, WithCountryCodes>
+): Either<FilteredOutEntry, WithCountryCode> => {
+  const mapper = eMap((entry: WithCountryCodes) => {
+    const code: CountryCode =
+      entry.countryCodes.size == 1
+        ? right(entry.countryCodes.values().next().value)
+        : left("Country could not be parsed");
+    return {
+      maEntry: entry.maEntry,
+      firstRelease: entry.firstRelease,
+      latestRelease: entry.latestRelease,
+      countryCode: code
+    };
+  });
+  return mapper(input);
 };
-
-const countryCodeIsRight = (input: WithCountryCode): boolean =>
-  isRight(input.countryCode);
 
 const orEmptyString: (ma: CountryCode) => string = getOrElse(() => "");
 
@@ -126,11 +163,25 @@ const unpackCountryCode = (
   countryCode: orEmptyString(input.countryCode)
 });
 
-const countryIsNotOnBlackList = (input: WithValidatedCountryCode): boolean =>
-  !countryBlackList.includes(input.countryCode);
+const countryIsNotOnBlackList = (
+  input: WithValidatedCountryCode
+): Either<FilteredOutEntry, WithValidatedCountryCode> =>
+  countryBlackList.includes(input.countryCode)
+    ? left<FilteredOutEntry>({
+        reason: "Country is on black list",
+        maEntry: input.maEntry
+      })
+    : right(input);
 
-const bandIsAMetalBand = (input: WithValidatedCountryCode): boolean =>
-  isMetal.isMetal.runWith(input.maEntry.Genre);
+const bandIsAMetalBand = (
+  input: WithValidatedCountryCode
+): Either<FilteredOutEntry, WithValidatedCountryCode> =>
+  isMetal.isMetal.runWith(input.maEntry.Genre)
+    ? right(input)
+    : left<FilteredOutEntry>({
+        reason: "Not a metal band",
+        maEntry: input.maEntry
+      });
 
 const getGenres = (input: WithValidatedCountryCode): WithGenreList => {
   const optGenres: Option<Genres>[] = classifiers.map(fn =>
@@ -158,19 +209,26 @@ const getGenres = (input: WithValidatedCountryCode): WithGenreList => {
   };
 };
 
-const hasNoEmptyGenre = (input: WithGenreList) => input.genres.length > 0;
+const hasNoEmptyGenre = (
+  input: WithGenreList
+): Either<FilteredOutEntry, WithGenreList> =>
+  input.genres.length > 0
+    ? right(input)
+    : left<FilteredOutEntry>({
+        reason: "Not in a relevant genre",
+        maEntry: input.maEntry
+      });
 
 const obs = getBandStream(locationOfMetalArchivesExport)
-  .pipe(map(parseReleaseDates))
-  .pipe(filter(hasReleases))
-  .pipe(map(getCountryCodes))
-  .pipe(map(getCountryCode))
-  .pipe(filter(countryCodeIsRight))
-  .pipe(map(unpackCountryCode))
-  .pipe(filter(countryIsNotOnBlackList))
-  .pipe(filter(bandIsAMetalBand))
-  .pipe(map(getGenres))
-  .pipe(filter(hasNoEmptyGenre))
-  .pipe(map(toString));
+  .pipe(rMap(parseReleaseDates))
+  .pipe(rMap(hasReleases))
+  .pipe(rMap(getCountryCodes))
+  .pipe(rMap(getCountryCode))
+  .pipe(rMap(eMap(unpackCountryCode)))
+  .pipe(rMap(chain(countryIsNotOnBlackList)))
+  .pipe(rMap(chain(bandIsAMetalBand)))
+  .pipe(rMap(eMap(getGenres)))
+  .pipe(rMap(chain(hasNoEmptyGenre)))
+  .pipe(rMap(toString));
 
 rxToStream(obs).pipe(process.stdout);
