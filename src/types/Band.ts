@@ -51,3 +51,5 @@ export type Genres =
 export type WithGenreList = WithValidatedCountryCode & {
   genres: Genres[];
 };
+
+export type BandInProcessingStep<T> = Either<FilteredOutEntry, T>;

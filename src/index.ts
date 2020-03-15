@@ -3,6 +3,7 @@ import { rxToStream } from "rxjs-stream";
 import path from "path";
 import { map as rMap } from "rxjs/operators";
 import {
+  BandInProcessingStep,
   CountryCode,
   FilteredOutEntry,
   Genres,
@@ -15,14 +16,7 @@ import {
 } from "./types/Band";
 import countryMapper from "country-mapper";
 import { getCode } from "country-list";
-import {
-  chain,
-  Either,
-  getOrElse,
-  left,
-  map as eMap,
-  right
-} from "fp-ts/lib/Either";
+import { chain, getOrElse, left, map as eMap, right } from "fp-ts/lib/Either";
 import {
   isBlackMetal,
   isDeathMetal,
@@ -63,7 +57,7 @@ const locationOfMetalArchivesExport = path.join(
   metalArchivesExport
 );
 
-const toString = (input: Either<FilteredOutEntry, WithGenreList>): string => {
+const toString = (input: BandInProcessingStep<WithGenreList>): string => {
   switch (input._tag) {
     case "Left":
       return JSON.stringify(
@@ -99,7 +93,7 @@ const parseReleaseDates = (input: MetalArchivesEntry): WithParsedYears => ({
 
 const hasReleases = (
   input: WithParsedYears
-): Either<FilteredOutEntry, WithParsedYears> =>
+): BandInProcessingStep<WithParsedYears> =>
   Number.isNaN(input.firstRelease) && Number.isNaN(input.latestRelease)
     ? left({
         reason: "No releases found",
@@ -116,8 +110,8 @@ const customCountryMapper = (country: string): string | undefined =>
   customCountryMapping[country];
 
 const getCountryCodes = (
-  input: Either<FilteredOutEntry, WithParsedYears>
-): Either<FilteredOutEntry, WithCountryCodes> => {
+  input: BandInProcessingStep<WithParsedYears>
+): BandInProcessingStep<WithCountryCodes> => {
   const mapper = eMap((entry: WithParsedYears) => {
     const codes: string[] = [
       countryMapper.convert(entry.maEntry.Country) || "",
@@ -135,8 +129,8 @@ const getCountryCodes = (
 };
 
 const getCountryCode = (
-  input: Either<FilteredOutEntry, WithCountryCodes>
-): Either<FilteredOutEntry, WithCountryCode> => {
+  input: BandInProcessingStep<WithCountryCodes>
+): BandInProcessingStep<WithCountryCode> => {
   const mapper = eMap((entry: WithCountryCodes) => {
     const code: CountryCode =
       entry.countryCodes.size == 1
@@ -165,7 +159,7 @@ const unpackCountryCode = (
 
 const countryIsNotOnBlackList = (
   input: WithValidatedCountryCode
-): Either<FilteredOutEntry, WithValidatedCountryCode> =>
+): BandInProcessingStep<WithValidatedCountryCode> =>
   countryBlackList.includes(input.countryCode)
     ? left<FilteredOutEntry>({
         reason: "Country is on black list",
@@ -175,7 +169,7 @@ const countryIsNotOnBlackList = (
 
 const bandIsAMetalBand = (
   input: WithValidatedCountryCode
-): Either<FilteredOutEntry, WithValidatedCountryCode> =>
+): BandInProcessingStep<WithValidatedCountryCode> =>
   isMetal.isMetal.runWith(input.maEntry.Genre)
     ? right(input)
     : left<FilteredOutEntry>({
@@ -211,7 +205,7 @@ const getGenres = (input: WithValidatedCountryCode): WithGenreList => {
 
 const hasNoEmptyGenre = (
   input: WithGenreList
-): Either<FilteredOutEntry, WithGenreList> =>
+): BandInProcessingStep<WithGenreList> =>
   input.genres.length > 0
     ? right(input)
     : left<FilteredOutEntry>({
