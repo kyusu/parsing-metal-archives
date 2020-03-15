@@ -16,8 +16,15 @@ export type WrappedMetalArchivesEntry = {
   maEntry: MetalArchivesEntry;
 };
 
+export type RejectionReasons =
+  | "No releases found"
+  | "Country could not be parsed"
+  | "Country is too small"
+  | "Not a metal band"
+  | "Not in a relevant genre";
+
 export type FilteredOutEntry = WrappedMetalArchivesEntry & {
-  reason: string;
+  reason: RejectionReasons;
 };
 
 export type WithParsedYears = WrappedMetalArchivesEntry & {

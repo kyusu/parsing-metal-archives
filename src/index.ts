@@ -162,7 +162,7 @@ const countryIsNotOnBlackList = (
 ): BandInProcessingStep<WithValidatedCountryCode> =>
   countryBlackList.includes(input.countryCode)
     ? left<FilteredOutEntry>({
-        reason: "Country is on black list",
+        reason: "Country is too small",
         maEntry: input.maEntry
       })
     : right(input);
