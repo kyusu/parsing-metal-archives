@@ -59,4 +59,8 @@ export type WithGenreList = WithValidatedCountryCode & {
   genres: Genres[];
 };
 
+export type IncludedBand = Omit<WithGenreList, "maEntry"> & {
+  sha1: string;
+};
+
 export type BandInProcessingStep<T> = Either<FilteredOutEntry, T>;

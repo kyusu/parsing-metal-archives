@@ -34,6 +34,8 @@ import {
   isSpeedMetal,
   isThrashMetal
 } from "ordo-ab-chao";
+import { sha1 } from "object-hash";
+
 import countryBlackList from "./countryBlackList.json";
 import { none, Option, some } from "fp-ts/lib/Option";
 import { absurd } from "fp-ts/lib/function";
@@ -98,7 +100,13 @@ const toOverview = (
       }
       break;
     case "Right":
-      acc.includedBands.push(input.right);
+      acc.includedBands.push({
+        sha1: sha1(input.right.maEntry),
+        firstRelease: input.right.firstRelease,
+        latestRelease: input.right.latestRelease,
+        genres: input.right.genres,
+        countryCode: input.right.countryCode
+      });
       break;
     default:
       absurd(input);
