@@ -1,7 +1,7 @@
 import getBandStream from "./readFromStream";
 import { rxToStream } from "rxjs-stream";
 import path from "path";
-import { map as rMap } from "rxjs/operators";
+import { map as rMap, reduce as rReduce } from "rxjs/operators";
 import {
   BandInProcessingStep,
   CountryCode,
@@ -16,7 +16,14 @@ import {
 } from "./types/Band";
 import countryMapper from "country-mapper";
 import { getCode } from "country-list";
-import { chain, getOrElse, left, map as eMap, right } from "fp-ts/lib/Either";
+import {
+  chain,
+  Either,
+  getOrElse,
+  left,
+  map as eMap,
+  right
+} from "fp-ts/lib/Either";
 import {
   isBlackMetal,
   isDeathMetal,
@@ -30,6 +37,7 @@ import {
 import countryBlackList from "./countryBlackList.json";
 import { none, Option, some } from "fp-ts/lib/Option";
 import { absurd } from "fp-ts/lib/function";
+import { Overview } from "./types/Overview";
 
 const metalArchivesExport: "band_20190607.csv" = "band_20190607.csv";
 
@@ -57,32 +65,46 @@ const locationOfMetalArchivesExport = path.join(
   metalArchivesExport
 );
 
-const toString = (input: BandInProcessingStep<WithGenreList>): string => {
+const toString = (overview: Overview): string =>
+  JSON.stringify(overview, null, 4);
+
+const toOverview = (
+  acc: Overview,
+  input: BandInProcessingStep<WithGenreList>
+): Overview => {
   switch (input._tag) {
     case "Left":
-      return JSON.stringify(
-        {
-          bandName: input.left.maEntry["Band name"],
-          reason: input.left.reason
-        },
-        null,
-        4
-      );
+      switch (input.left.reason) {
+        case "Country could not be parsed":
+          acc.filteredOut["Country could not be parsed"].push(
+            input.left.maEntry
+          );
+          break;
+        case "Country is too small":
+          acc.filteredOut["Country is too small"].push(input.left.maEntry);
+          break;
+        case "No releases found":
+          acc.filteredOut["No releases found"].push(input.left.maEntry);
+          break;
+        case "Not a metal band":
+          acc.filteredOut["Not a metal band"].push(input.left.maEntry);
+          break;
+        case "Not in a relevant genre":
+          acc.filteredOut["Not in a relevant genre"].push(input.left.maEntry);
+          break;
+        default:
+          absurd(input.left.reason);
+          break;
+      }
+      break;
     case "Right":
-      return JSON.stringify(
-        {
-          firstRelease: input.right.firstRelease,
-          latestRelease: input.right.latestRelease,
-          countryCode: input.right.countryCode,
-          genres: input.right.genres,
-          bandName: input.right.maEntry["Band name"]
-        },
-        null,
-        4
-      );
+      acc.includedBands.push(input.right);
+      break;
     default:
-      return absurd(input);
+      absurd(input);
+      break;
   }
+  return acc;
 };
 
 const parseReleaseDates = (input: MetalArchivesEntry): WithParsedYears => ({
@@ -117,7 +139,7 @@ const getCountryCodes = (
       countryMapper.convert(entry.maEntry.Country) || "",
       getCode(entry.maEntry.Country) || "",
       customCountryMapper(entry.maEntry.Country) || ""
-    ].filter(code => !!code);
+    ].filter(code => code !== "");
     return {
       maEntry: entry.maEntry,
       firstRelease: entry.firstRelease,
@@ -133,7 +155,7 @@ const getCountryCode = (
 ): BandInProcessingStep<WithCountryCode> => {
   const mapper = eMap((entry: WithCountryCodes) => {
     const code: CountryCode =
-      entry.countryCodes.size == 1
+      entry.countryCodes.size === 1
         ? right(entry.countryCodes.values().next().value)
         : left("Country could not be parsed");
     return {
@@ -150,12 +172,24 @@ const orEmptyString: (ma: CountryCode) => string = getOrElse(() => "");
 
 const unpackCountryCode = (
   input: WithCountryCode
-): WithValidatedCountryCode => ({
-  maEntry: input.maEntry,
-  latestRelease: input.latestRelease,
-  firstRelease: input.firstRelease,
-  countryCode: orEmptyString(input.countryCode)
-});
+): BandInProcessingStep<WithValidatedCountryCode> => {
+  switch (input.countryCode._tag) {
+    case "Right":
+      return right({
+        maEntry: input.maEntry,
+        latestRelease: input.latestRelease,
+        firstRelease: input.firstRelease,
+        countryCode: orEmptyString(input.countryCode)
+      });
+    case "Left":
+      return left({
+        maEntry: input.maEntry,
+        reason: "Country could not be parsed"
+      });
+    default:
+      return absurd(input.countryCode);
+  }
+};
 
 const countryIsNotOnBlackList = (
   input: WithValidatedCountryCode
@@ -218,11 +252,23 @@ const obs = getBandStream(locationOfMetalArchivesExport)
   .pipe(rMap(hasReleases))
   .pipe(rMap(getCountryCodes))
   .pipe(rMap(getCountryCode))
-  .pipe(rMap(eMap(unpackCountryCode)))
+  .pipe(rMap(chain(unpackCountryCode)))
   .pipe(rMap(chain(countryIsNotOnBlackList)))
   .pipe(rMap(chain(bandIsAMetalBand)))
   .pipe(rMap(eMap(getGenres)))
   .pipe(rMap(chain(hasNoEmptyGenre)))
+  .pipe(
+    rReduce<Either<FilteredOutEntry, WithGenreList>, Overview>(toOverview, {
+      filteredOut: {
+        "Country could not be parsed": [],
+        "No releases found": [],
+        "Country is too small": [],
+        "Not a metal band": [],
+        "Not in a relevant genre": []
+      },
+      includedBands: []
+    })
+  )
   .pipe(rMap(toString));
 
 rxToStream(obs).pipe(process.stdout);
