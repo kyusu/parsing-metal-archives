@@ -88,21 +88,24 @@ const countRejections = (
 ): ReducedBandsWithRejectionsCounts => {
   return {
     filteredOut: {
-      "Country could not be parsed": sortAndCount(
-        reducedBands.filteredOut["Country could not be parsed"]
-      ),
-      "Country is too small": sortAndCount(
-        reducedBands.filteredOut["Country is too small"]
-      ),
-      "No releases found": sortAndCount(
-        reducedBands.filteredOut["No releases found"]
-      ),
-      "Not a metal band": sortAndCount(
-        reducedBands.filteredOut["Not a metal band"]
-      ),
-      "Not in a relevant genre": sortAndCount(
-        reducedBands.filteredOut["Not in a relevant genre"]
-      )
+      total: reducedBands.filteredOut.total,
+      reasons: {
+        "Country could not be parsed": sortAndCount(
+          reducedBands.filteredOut.reasons["Country could not be parsed"]
+        ),
+        "Country is too small": sortAndCount(
+          reducedBands.filteredOut.reasons["Country is too small"]
+        ),
+        "No releases found": sortAndCount(
+          reducedBands.filteredOut.reasons["No releases found"]
+        ),
+        "Not a metal band": sortAndCount(
+          reducedBands.filteredOut.reasons["Not a metal band"]
+        ),
+        "Not in a relevant genre": sortAndCount(
+          reducedBands.filteredOut.reasons["Not in a relevant genre"]
+        )
+      }
     },
     includedBands: reducedBands.includedBands
   };
@@ -114,27 +117,30 @@ const toReducedBands = (
 ): ReducedBands => {
   switch (input._tag) {
     case "Left":
+      acc.filteredOut.total = acc.filteredOut.total + 1;
       switch (input.left.reason) {
         case "Country could not be parsed":
-          acc.filteredOut["Country could not be parsed"].push(
+          acc.filteredOut.reasons["Country could not be parsed"].push(
             input.left.maEntry.Country
           );
           break;
         case "Country is too small":
-          acc.filteredOut["Country is too small"].push(
+          acc.filteredOut.reasons["Country is too small"].push(
             input.left.maEntry.Country
           );
           break;
         case "No releases found":
-          acc.filteredOut["No releases found"].push(
+          acc.filteredOut.reasons["No releases found"].push(
             `first release: ${input.left.maEntry["First release"]}, latest release: ${input.left.maEntry["Latest release"]}`
           );
           break;
         case "Not a metal band":
-          acc.filteredOut["Not a metal band"].push(input.left.maEntry.Genre);
+          acc.filteredOut.reasons["Not a metal band"].push(
+            input.left.maEntry.Genre
+          );
           break;
         case "Not in a relevant genre":
-          acc.filteredOut["Not in a relevant genre"].push(
+          acc.filteredOut.reasons["Not in a relevant genre"].push(
             input.left.maEntry.Genre
           );
           break;
@@ -308,11 +314,14 @@ const obs = getBandStream(locationOfMetalArchivesExport)
       toReducedBands,
       {
         filteredOut: {
-          "Country could not be parsed": [],
-          "No releases found": [],
-          "Country is too small": [],
-          "Not a metal band": [],
-          "Not in a relevant genre": []
+          reasons: {
+            "Country could not be parsed": [],
+            "No releases found": [],
+            "Country is too small": [],
+            "Not a metal band": [],
+            "Not in a relevant genre": []
+          },
+          total: 0
         },
         includedBands: []
       }
