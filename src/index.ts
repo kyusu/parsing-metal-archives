@@ -76,11 +76,11 @@ const toString = (overview: Overview): string =>
   JSON.stringify(overview, null, 4);
 
 const sortAndCount = (rejectedValues: string[]): Record<string, number> => {
-  const sorted = R.sort(
-    (a: string, b: string) => a.localeCompare(b),
-    rejectedValues
-  );
-  return R.countBy<string>(identity)(sorted);
+  const counted = R.countBy<string>(identity)(rejectedValues);
+  const pairs = R.toPairs<number>(counted);
+  const sorted = R.sortBy((a: [string, number]) => a[1], pairs);
+  const reversed = R.reverse<[string, number]>(sorted);
+  return R.fromPairs<number>(reversed);
 };
 
 const countRejections = (
