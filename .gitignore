@@ -114,3 +114,5 @@ dist
 
 # Compiler output
 build
+
+result.json

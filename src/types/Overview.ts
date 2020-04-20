@@ -1,12 +1,7 @@
-import {
-  IncludedBand,
-  MetalArchivesEntry,
-  RejectionReasons,
-  WithGenreList
-} from "./Band";
+import { IncludedBand, RejectionReasons, WithGenreList } from "./Band";
 
 export type ReducedBands = {
-  filteredOut: Record<RejectionReasons, MetalArchivesEntry[]>;
+  filteredOut: Record<RejectionReasons, string[]>;
   includedBands: WithGenreList[];
 };
 

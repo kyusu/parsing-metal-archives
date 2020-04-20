@@ -78,20 +78,26 @@ const toReducedBands = (
       switch (input.left.reason) {
         case "Country could not be parsed":
           acc.filteredOut["Country could not be parsed"].push(
-            input.left.maEntry
+            input.left.maEntry.Country
           );
           break;
         case "Country is too small":
-          acc.filteredOut["Country is too small"].push(input.left.maEntry);
+          acc.filteredOut["Country is too small"].push(
+            input.left.maEntry.Country
+          );
           break;
         case "No releases found":
-          acc.filteredOut["No releases found"].push(input.left.maEntry);
+          acc.filteredOut["No releases found"].push(
+            `first release: ${input.left.maEntry["First release"]}, latest release: ${input.left.maEntry["Latest release"]}`
+          );
           break;
         case "Not a metal band":
-          acc.filteredOut["Not a metal band"].push(input.left.maEntry);
+          acc.filteredOut["Not a metal band"].push(input.left.maEntry.Genre);
           break;
         case "Not in a relevant genre":
-          acc.filteredOut["Not in a relevant genre"].push(input.left.maEntry);
+          acc.filteredOut["Not in a relevant genre"].push(
+            input.left.maEntry.Genre
+          );
           break;
         default:
           absurd(input.left.reason);
