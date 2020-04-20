@@ -1,6 +1,7 @@
 import getBandStream from "./readFromStream";
 import { rxToStream } from "rxjs-stream";
 import path from "path";
+import * as R from "ramda";
 import { map as rMap, reduce as rReduce } from "rxjs/operators";
 import {
   BandInProcessingStep,
@@ -37,8 +38,13 @@ import {
 
 import countryBlackList from "./countryBlackList.json";
 import { none, Option, some } from "fp-ts/lib/Option";
+import { identity } from "fp-ts/lib/function";
 import { absurd } from "fp-ts/lib/function";
-import { Overview, ReducedBands } from "./types/Overview";
+import {
+  Overview,
+  ReducedBands,
+  ReducedBandsWithRejectionsCounts
+} from "./types/Overview";
 
 const metalArchivesExport: "band_20190607.csv" = "band_20190607.csv";
 
@@ -68,6 +74,39 @@ const locationOfMetalArchivesExport = path.join(
 
 const toString = (overview: Overview): string =>
   JSON.stringify(overview, null, 4);
+
+const sortAndCount = (rejectedValues: string[]): Record<string, number> => {
+  const sorted = R.sort(
+    (a: string, b: string) => a.localeCompare(b),
+    rejectedValues
+  );
+  return R.countBy<string>(identity)(sorted);
+};
+
+const countRejections = (
+  reducedBands: ReducedBands
+): ReducedBandsWithRejectionsCounts => {
+  return {
+    filteredOut: {
+      "Country could not be parsed": sortAndCount(
+        reducedBands.filteredOut["Country could not be parsed"]
+      ),
+      "Country is too small": sortAndCount(
+        reducedBands.filteredOut["Country is too small"]
+      ),
+      "No releases found": sortAndCount(
+        reducedBands.filteredOut["No releases found"]
+      ),
+      "Not a metal band": sortAndCount(
+        reducedBands.filteredOut["Not a metal band"]
+      ),
+      "Not in a relevant genre": sortAndCount(
+        reducedBands.filteredOut["Not in a relevant genre"]
+      )
+    },
+    includedBands: reducedBands.includedBands
+  };
+};
 
 const toReducedBands = (
   acc: ReducedBands,
@@ -279,6 +318,7 @@ const obs = getBandStream(locationOfMetalArchivesExport)
       }
     )
   )
+  .pipe(rMap(countRejections))
   .pipe(rMap(toString));
 
 rxToStream(obs).pipe(process.stdout);

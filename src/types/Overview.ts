@@ -5,6 +5,13 @@ export type ReducedBands = {
   includedBands: WithGenreList[];
 };
 
+export type ReducedBandsWithRejectionsCounts = Omit<
+  ReducedBands,
+  "filteredOut"
+> & {
+  filteredOut: Record<RejectionReasons, Record<string, number>>;
+};
+
 export type WithIncludedBands = Omit<ReducedBands, "includedBands"> & {
   includedBands: IncludedBand[];
 };
