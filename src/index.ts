@@ -34,12 +34,11 @@ import {
   isSpeedMetal,
   isThrashMetal
 } from "ordo-ab-chao";
-import { sha1 } from "object-hash";
 
 import countryBlackList from "./countryBlackList.json";
 import { none, Option, some } from "fp-ts/lib/Option";
 import { absurd } from "fp-ts/lib/function";
-import { Overview } from "./types/Overview";
+import { Overview, ReducedBands } from "./types/Overview";
 
 const metalArchivesExport: "band_20190607.csv" = "band_20190607.csv";
 
@@ -70,10 +69,10 @@ const locationOfMetalArchivesExport = path.join(
 const toString = (overview: Overview): string =>
   JSON.stringify(overview, null, 4);
 
-const toOverview = (
-  acc: Overview,
+const toReducedBands = (
+  acc: ReducedBands,
   input: BandInProcessingStep<WithGenreList>
-): Overview => {
+): ReducedBands => {
   switch (input._tag) {
     case "Left":
       switch (input.left.reason) {
@@ -100,13 +99,7 @@ const toOverview = (
       }
       break;
     case "Right":
-      acc.includedBands.push({
-        sha1: sha1(input.right.maEntry),
-        firstRelease: input.right.firstRelease,
-        latestRelease: input.right.latestRelease,
-        genres: input.right.genres,
-        countryCode: input.right.countryCode
-      });
+      acc.includedBands.push(input.right);
       break;
     default:
       absurd(input);
@@ -266,16 +259,19 @@ const obs = getBandStream(locationOfMetalArchivesExport)
   .pipe(rMap(eMap(getGenres)))
   .pipe(rMap(chain(hasNoEmptyGenre)))
   .pipe(
-    rReduce<Either<FilteredOutEntry, WithGenreList>, Overview>(toOverview, {
-      filteredOut: {
-        "Country could not be parsed": [],
-        "No releases found": [],
-        "Country is too small": [],
-        "Not a metal band": [],
-        "Not in a relevant genre": []
-      },
-      includedBands: []
-    })
+    rReduce<Either<FilteredOutEntry, WithGenreList>, ReducedBands>(
+      toReducedBands,
+      {
+        filteredOut: {
+          "Country could not be parsed": [],
+          "No releases found": [],
+          "Country is too small": [],
+          "Not a metal band": [],
+          "Not in a relevant genre": []
+        },
+        includedBands: []
+      }
+    )
   )
   .pipe(rMap(toString));
 
