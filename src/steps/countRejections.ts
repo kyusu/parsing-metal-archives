@@ -14,23 +14,21 @@ const countRejections = (
 ): ReducedBandsWithRejectionsCounts => {
   return {
     filteredOut: {
-      reasons: {
-        "Country could not be parsed": countRejects(
-          reducedBands.filteredOut.reasons["Country could not be parsed"]
-        ),
-        "Country is too small": countRejects(
-          reducedBands.filteredOut.reasons["Country is too small"]
-        ),
-        "No releases found": countRejects(
-          reducedBands.filteredOut.reasons["No releases found"]
-        ),
-        "Not a metal band": countRejects(
-          reducedBands.filteredOut.reasons["Not a metal band"]
-        ),
-        "Not in a relevant genre": countRejects(
-          reducedBands.filteredOut.reasons["Not in a relevant genre"]
-        )
-      }
+      "Country could not be parsed": countRejects(
+        reducedBands.filteredOut["Country could not be parsed"]
+      ),
+      "Country is too small": countRejects(
+        reducedBands.filteredOut["Country is too small"]
+      ),
+      "No releases found": countRejects(
+        reducedBands.filteredOut["No releases found"]
+      ),
+      "Not a metal band": countRejects(
+        reducedBands.filteredOut["Not a metal band"]
+      ),
+      "Not in a relevant genre": countRejects(
+        reducedBands.filteredOut["Not in a relevant genre"]
+      )
     },
     includedBands: reducedBands.includedBands
   };

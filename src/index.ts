@@ -29,13 +29,11 @@ const locationOfMetalArchivesExport = path.join(
 
 const initialValue = {
   filteredOut: {
-    reasons: {
-      "Country could not be parsed": [],
-      "No releases found": [],
-      "Country is too small": [],
-      "Not a metal band": [],
-      "Not in a relevant genre": []
-    }
+    "Country could not be parsed": [],
+    "No releases found": [],
+    "Country is too small": [],
+    "Not a metal band": [],
+    "Not in a relevant genre": []
   },
   includedBands: []
 };
