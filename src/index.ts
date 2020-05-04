@@ -75,12 +75,8 @@ const locationOfMetalArchivesExport = path.join(
 const toString = (overview: Overview): string =>
   JSON.stringify(overview, null, 4);
 
-const sortAndCount = (rejectedValues: string[]): Record<string, number> => {
-  const counted = R.countBy<string>(identity)(rejectedValues);
-  const pairs = R.toPairs<number>(counted);
-  const sorted = R.sortBy((a: [string, number]) => a[1], pairs);
-  const reversed = R.reverse<[string, number]>(sorted);
-  return R.fromPairs<number>(reversed);
+const countRejects = (rejectedValues: string[]): Record<string, number> => {
+  return R.countBy<string>(identity)(rejectedValues);
 };
 
 const countRejections = (
@@ -88,21 +84,20 @@ const countRejections = (
 ): ReducedBandsWithRejectionsCounts => {
   return {
     filteredOut: {
-      total: reducedBands.filteredOut.total,
       reasons: {
-        "Country could not be parsed": sortAndCount(
+        "Country could not be parsed": countRejects(
           reducedBands.filteredOut.reasons["Country could not be parsed"]
         ),
-        "Country is too small": sortAndCount(
+        "Country is too small": countRejects(
           reducedBands.filteredOut.reasons["Country is too small"]
         ),
-        "No releases found": sortAndCount(
+        "No releases found": countRejects(
           reducedBands.filteredOut.reasons["No releases found"]
         ),
-        "Not a metal band": sortAndCount(
+        "Not a metal band": countRejects(
           reducedBands.filteredOut.reasons["Not a metal band"]
         ),
-        "Not in a relevant genre": sortAndCount(
+        "Not in a relevant genre": countRejects(
           reducedBands.filteredOut.reasons["Not in a relevant genre"]
         )
       }
@@ -117,7 +112,6 @@ const toReducedBands = (
 ): ReducedBands => {
   switch (input._tag) {
     case "Left":
-      acc.filteredOut.total = acc.filteredOut.total + 1;
       switch (input.left.reason) {
         case "Country could not be parsed":
           acc.filteredOut.reasons["Country could not be parsed"].push(
@@ -320,8 +314,7 @@ const obs = getBandStream(locationOfMetalArchivesExport)
             "Country is too small": [],
             "Not a metal band": [],
             "Not in a relevant genre": []
-          },
-          total: 0
+          }
         },
         includedBands: []
       }

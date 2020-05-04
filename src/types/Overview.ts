@@ -1,7 +1,7 @@
 import { IncludedBand, RejectionReasons, WithGenreList } from "./Band";
 
 export type ReducedBands = {
-  filteredOut: { reasons: Record<RejectionReasons, string[]>; total: number };
+  filteredOut: { reasons: Record<RejectionReasons, string[]> };
   includedBands: WithGenreList[];
 };
 
@@ -11,7 +11,6 @@ export type ReducedBandsWithRejectionsCounts = Omit<
 > & {
   filteredOut: {
     reasons: Record<RejectionReasons, Record<string, number>>;
-    total: number;
   };
 };
 
