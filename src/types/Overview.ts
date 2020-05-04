@@ -12,7 +12,10 @@ export type ReducedBandsWithRejectionsCounts = Omit<
   filteredOut: Record<RejectionReasons, Record<string, number>>;
 };
 
-export type WithIncludedBands = Omit<ReducedBands, "includedBands"> & {
+export type WithIncludedBands = Omit<
+  ReducedBandsWithRejectionsCounts,
+  "includedBands"
+> & {
   includedBands: IncludedBand[];
 };
 
