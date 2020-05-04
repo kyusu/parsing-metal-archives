@@ -60,7 +60,7 @@ export type WithGenreList = WithValidatedCountryCode & {
 };
 
 export type IncludedBand = Omit<WithGenreList, "maEntry"> & {
-  sha1: string;
+  id: string;
 };
 
 export type BandInProcessingStep<T> = Either<FilteredOutEntry, T>;

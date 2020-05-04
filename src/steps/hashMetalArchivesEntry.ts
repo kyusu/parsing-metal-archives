@@ -10,7 +10,7 @@ const hashMetalArchivesEntry: (
 ) => WithIncludedBands = bands => {
   const hashedMAEntries = bands.includedBands.map(
     (band): IncludedBand => ({
-      sha1: hash(band.maEntry),
+      id: hash.sha1(band.maEntry),
       firstRelease: band.firstRelease,
       latestRelease: band.latestRelease,
       countryCode: band.countryCode,
