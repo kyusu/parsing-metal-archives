@@ -1,9 +1,9 @@
 import getBandStream from "./readFromStream";
 import { rxToStream } from "rxjs-stream";
 import path from "path";
-import { map as rMap, reduce as rReduce } from "rxjs/operators";
+import * as Rx from "rxjs/operators";
 import { FilteredOutEntry, WithGenreList } from "./types/Band";
-import { chain, Either, map as eMap } from "fp-ts/lib/Either";
+import * as E from "fp-ts/lib/Either";
 import { ReducedBands } from "./types/Overview";
 import {
   bandIsAMetalBand,
@@ -42,23 +42,23 @@ const initialValue = {
 };
 
 const obs = getBandStream(locationOfMetalArchivesExport)
-  .pipe(rMap(parseReleaseDates))
-  .pipe(rMap(hasReleases))
-  .pipe(rMap(getCountryCodes))
-  .pipe(rMap(getCountryCode))
-  .pipe(rMap(chain(unpackCountryCode)))
-  .pipe(rMap(chain(countryIsNotOnBlackList)))
-  .pipe(rMap(chain(bandIsAMetalBand)))
-  .pipe(rMap(eMap(getGenres)))
-  .pipe(rMap(chain(hasNoEmptyGenre)))
+  .pipe(Rx.map(parseReleaseDates))
+  .pipe(Rx.map(hasReleases))
+  .pipe(Rx.map(getCountryCodes))
+  .pipe(Rx.map(getCountryCode))
+  .pipe(Rx.map(E.chain(unpackCountryCode)))
+  .pipe(Rx.map(E.chain(countryIsNotOnBlackList)))
+  .pipe(Rx.map(E.chain(bandIsAMetalBand)))
+  .pipe(Rx.map(E.map(getGenres)))
+  .pipe(Rx.map(E.chain(hasNoEmptyGenre)))
   .pipe(
-    rReduce<Either<FilteredOutEntry, WithGenreList>, ReducedBands>(
+    Rx.reduce<E.Either<FilteredOutEntry, WithGenreList>, ReducedBands>(
       toReducedBands,
       initialValue
     )
   )
-  .pipe(rMap(countRejections))
-  .pipe(rMap(hashMetalArchivesEntry))
-  .pipe(rMap(toString));
+  .pipe(Rx.map(countRejections))
+  .pipe(Rx.map(hashMetalArchivesEntry))
+  .pipe(Rx.map(toString));
 
 rxToStream(obs).pipe(process.stdout);
