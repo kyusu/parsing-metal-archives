@@ -21,7 +21,7 @@ describe("hasReleases", () => {
     );
   });
 
-  it("should wrap the release in a Left if its has NaN as release dates", () => {
+  it("should wrap the release in a Left if its has NaN for both release dates", () => {
     const withParsedYears = createWithParsedYears({
       firstRelease: NaN,
       latestRelease: NaN
@@ -30,6 +30,31 @@ describe("hasReleases", () => {
     expect<Either<FilteredOutEntry, WithParsedYears>>(result).toEqual(
       left<FilteredOutEntry, WithParsedYears>({
         maEntry: withParsedYears.maEntry,
+        reason: "No releases found"
+      })
+    );
+  });
+
+  it("should wrap the release in a Left if one of the release dates is NaN", () => {
+    const withFirstReleaseAsNaN = createWithParsedYears({
+      firstRelease: NaN,
+      latestRelease: 1994
+    });
+    const withLatestReleaseAsNaN = createWithParsedYears({
+      firstRelease: 1993,
+      latestRelease: NaN
+    });
+    const firstResult = hasReleases(withFirstReleaseAsNaN);
+    const secondResult = hasReleases(withLatestReleaseAsNaN);
+    expect<Either<FilteredOutEntry, WithParsedYears>>(firstResult).toEqual(
+      left<FilteredOutEntry, WithParsedYears>({
+        maEntry: withFirstReleaseAsNaN.maEntry,
+        reason: "No releases found"
+      })
+    );
+    expect<Either<FilteredOutEntry, WithParsedYears>>(secondResult).toEqual(
+      left<FilteredOutEntry, WithParsedYears>({
+        maEntry: withLatestReleaseAsNaN.maEntry,
         reason: "No releases found"
       })
     );
