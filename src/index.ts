@@ -44,7 +44,7 @@ const initialValue = {
 const obs = getBandStream(locationOfMetalArchivesExport)
   .pipe(Rx.map(parseReleaseDates))
   .pipe(Rx.map(hasReleases))
-  .pipe(Rx.map(getCountryCodes))
+  .pipe(Rx.map(E.map(getCountryCodes)))
   .pipe(Rx.map(getCountryCode))
   .pipe(Rx.map(E.chain(unpackCountryCode)))
   .pipe(Rx.map(E.chain(countryIsNotOnBlackList)))
