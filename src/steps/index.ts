@@ -1,8 +1,7 @@
 import parseReleaseDates from "./parseReleaseDates";
 import hasReleases from "./hasReleases";
 import getCountryCodes from "./getCountryCodes";
-import getCountryCode from "./getCountryCode";
-import unpackCountryCode from "./unpackCountryCode";
+import validateCountryCodes from "./validateCountryCodes";
 import countryIsNotOnBlackList from "./countryIsNotOnBlackList";
 import bandIsAMetalBand from "./bandIsAMetalBand";
 import getGenres from "./getGenres";
@@ -19,8 +18,7 @@ export {
   hasReleases,
   toString,
   countRejections,
-  unpackCountryCode,
-  getCountryCode,
+  validateCountryCodes,
   getCountryCodes,
   getGenres,
   toReducedBands,

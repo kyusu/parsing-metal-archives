@@ -36,13 +36,10 @@ export type WithCountryCodes = WithParsedYears & {
   countryCodes: Set<string>;
 };
 
-export type CountryCode = Either<"Country could not be parsed", string>;
-
-export type WithCountryCode = Omit<WithCountryCodes, "countryCodes"> & {
-  countryCode: CountryCode;
-};
-
-export type WithValidatedCountryCode = Omit<WithCountryCode, "countryCode"> & {
+export type WithValidatedCountryCode = Omit<
+  WithCountryCodes,
+  "countryCodes"
+> & {
   countryCode: string;
 };
 
