@@ -1,7 +1,11 @@
 import hasReleases from "./hasReleases";
 import { factory } from "factoree";
-import { FilteredOutEntry, WithParsedYears } from "../types/Band";
-import { Either, left, right } from "fp-ts/lib/Either";
+import {
+  BandInProcessingStep,
+  FilteredOutEntry,
+  WithParsedYears
+} from "../types/Band";
+import { left, right } from "fp-ts/lib/Either";
 
 const createWithParsedYears = factory<WithParsedYears>({
   firstRelease: undefined,
@@ -16,9 +20,9 @@ describe("hasReleases", () => {
       latestRelease: 2004
     });
     const result = hasReleases(withParsedYears);
-    expect<Either<FilteredOutEntry, WithParsedYears>>(result).toEqual(
-      right(withParsedYears)
-    );
+    expect<BandInProcessingStep<WithParsedYears>>(result).toEqual<
+      BandInProcessingStep<WithParsedYears>
+    >(right(withParsedYears));
   });
 
   it("should wrap the release in a Left if its has NaN for both release dates", () => {
@@ -27,7 +31,9 @@ describe("hasReleases", () => {
       latestRelease: NaN
     });
     const result = hasReleases(withParsedYears);
-    expect<Either<FilteredOutEntry, WithParsedYears>>(result).toEqual(
+    expect<BandInProcessingStep<WithParsedYears>>(result).toEqual<
+      BandInProcessingStep<WithParsedYears>
+    >(
       left<FilteredOutEntry, WithParsedYears>({
         maEntry: withParsedYears.maEntry,
         reason: "No releases found"
@@ -46,13 +52,17 @@ describe("hasReleases", () => {
     });
     const firstResult = hasReleases(withFirstReleaseAsNaN);
     const secondResult = hasReleases(withLatestReleaseAsNaN);
-    expect<Either<FilteredOutEntry, WithParsedYears>>(firstResult).toEqual(
+    expect<BandInProcessingStep<WithParsedYears>>(firstResult).toEqual<
+      BandInProcessingStep<WithParsedYears>
+    >(
       left<FilteredOutEntry, WithParsedYears>({
         maEntry: withFirstReleaseAsNaN.maEntry,
         reason: "No releases found"
       })
     );
-    expect<Either<FilteredOutEntry, WithParsedYears>>(secondResult).toEqual(
+    expect<BandInProcessingStep<WithParsedYears>>(secondResult).toEqual<
+      BandInProcessingStep<WithParsedYears>
+    >(
       left<FilteredOutEntry, WithParsedYears>({
         maEntry: withLatestReleaseAsNaN.maEntry,
         reason: "No releases found"

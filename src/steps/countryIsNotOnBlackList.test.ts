@@ -22,9 +22,9 @@ describe("countryIsNotOnBlackList", () => {
       countryCode: "BR"
     });
     const result = countryIsNotOnBlackList(bandFromBrazil);
-    expect<BandInProcessingStep<WithValidatedCountryCode>>(result).toEqual(
-      right(createWithValidatedCountryCode({ countryCode: "BR" }))
-    );
+    expect<BandInProcessingStep<WithValidatedCountryCode>>(result).toEqual<
+      BandInProcessingStep<WithValidatedCountryCode>
+    >(right(createWithValidatedCountryCode({ countryCode: "BR" })));
   });
 
   it("should wrap the entry in a left if the country of the band is on the black list", () => {
@@ -32,8 +32,8 @@ describe("countryIsNotOnBlackList", () => {
       countryCode: "HK"
     });
     const result = countryIsNotOnBlackList(bandFromHongKong);
-    expect<BandInProcessingStep<WithValidatedCountryCode>>(result).toEqual(
-      left(createFilteredOutEntry({ reason: "Country is too small" }))
-    );
+    expect<BandInProcessingStep<WithValidatedCountryCode>>(result).toEqual<
+      BandInProcessingStep<WithValidatedCountryCode>
+    >(left(createFilteredOutEntry({ reason: "Country is too small" })));
   });
 });

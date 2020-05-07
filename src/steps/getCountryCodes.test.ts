@@ -15,8 +15,10 @@ describe("getCountryCodes", () => {
       maEntry: createMetalArchivesEntry({ Country: "Uruguay" })
     });
     const result = getCountryCodes(withValidCountry);
-    expect<Set<string>>(result.countryCodes).toEqual(new Set(["UY"]));
-    expect<MetalArchivesEntry>(result.maEntry).toEqual(
+    expect<Set<string>>(result.countryCodes).toEqual<Set<string>>(
+      new Set(["UY"])
+    );
+    expect<MetalArchivesEntry>(result.maEntry).toEqual<MetalArchivesEntry>(
       withValidCountry.maEntry
     );
   });
@@ -26,8 +28,8 @@ describe("getCountryCodes", () => {
       maEntry: createMetalArchivesEntry({ Country: "International" })
     });
     const result = getCountryCodes(withInvalidCountry);
-    expect<Set<string>>(result.countryCodes).toEqual(new Set());
-    expect<MetalArchivesEntry>(result.maEntry).toEqual(
+    expect<Set<string>>(result.countryCodes).toEqual<Set<string>>(new Set());
+    expect<MetalArchivesEntry>(result.maEntry).toEqual<MetalArchivesEntry>(
       withInvalidCountry.maEntry
     );
   });
@@ -37,8 +39,12 @@ describe("getCountryCodes", () => {
       maEntry: createMetalArchivesEntry({ Country: "Korea, South" })
     });
     const result = getCountryCodes(withKoreaSouth);
-    expect<Set<string>>(result.countryCodes).toEqual(new Set(["KR"]));
-    expect<MetalArchivesEntry>(result.maEntry).toEqual(withKoreaSouth.maEntry);
+    expect<Set<string>>(result.countryCodes).toEqual<Set<string>>(
+      new Set(["KR"])
+    );
+    expect<MetalArchivesEntry>(result.maEntry).toEqual<MetalArchivesEntry>(
+      withKoreaSouth.maEntry
+    );
   });
 
   it('should map the string "Svalbard" to the ISO-3166 country code of Norway', () => {
@@ -46,7 +52,11 @@ describe("getCountryCodes", () => {
       maEntry: createMetalArchivesEntry({ Country: "Svalbard" })
     });
     const result = getCountryCodes(withSvalbard);
-    expect<Set<string>>(result.countryCodes).toEqual(new Set(["NO"]));
-    expect<MetalArchivesEntry>(result.maEntry).toEqual(withSvalbard.maEntry);
+    expect<Set<string>>(result.countryCodes).toEqual<Set<string>>(
+      new Set(["NO"])
+    );
+    expect<MetalArchivesEntry>(result.maEntry).toEqual<MetalArchivesEntry>(
+      withSvalbard.maEntry
+    );
   });
 });

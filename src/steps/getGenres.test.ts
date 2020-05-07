@@ -1,12 +1,12 @@
 import getGenres from "./getGenres";
 import { factory } from "factoree";
 import {
-  FilteredOutEntry,
+  BandInProcessingStep,
   MetalArchivesEntry,
   WithGenreList,
   WithValidatedCountryCode
 } from "../types/Band";
-import { Either, left, right } from "fp-ts/lib/Either";
+import { left, right } from "fp-ts/lib/Either";
 
 const createMetalArchivesEntry = factory<MetalArchivesEntry>({
   Genre: undefined
@@ -26,8 +26,8 @@ describe("getGenres", () => {
       maEntry: metalArchivesEntry
     });
     const result = getGenres(withRelevantGenre);
-    expect<Either<FilteredOutEntry, WithGenreList>>(result).toEqual<
-      Either<FilteredOutEntry, WithGenreList>
+    expect<BandInProcessingStep<WithGenreList>>(result).toEqual<
+      BandInProcessingStep<WithGenreList>
     >(
       right(
         createWithGenreList({
@@ -46,8 +46,8 @@ describe("getGenres", () => {
       maEntry: metalArchivesEntry
     });
     const result = getGenres(withIrrelevantGenre);
-    expect<Either<FilteredOutEntry, WithGenreList>>(result).toEqual<
-      Either<FilteredOutEntry, WithGenreList>
+    expect<BandInProcessingStep<WithGenreList>>(result).toEqual<
+      BandInProcessingStep<WithGenreList>
     >(
       left({
         maEntry: metalArchivesEntry,

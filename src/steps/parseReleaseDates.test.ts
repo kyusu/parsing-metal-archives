@@ -14,24 +14,30 @@ describe("parseReleaseDates", () => {
       "Latest release": "2017"
     });
     const result = parseReleaseDates(maEntry);
-    expect<number>(result.firstRelease).toEqual(1999);
-    expect<number>(result.latestRelease).toEqual(2017);
-    expect<MetalArchivesEntry>(result.maEntry).toEqual(maEntry);
+    expect<number>(result.firstRelease).toEqual<number>(1999);
+    expect<number>(result.latestRelease).toEqual<number>(2017);
+    expect<MetalArchivesEntry>(result.maEntry).toEqual<MetalArchivesEntry>(
+      maEntry
+    );
   });
 
   it("should parse the release dates and turn them to NaN if they are not existing", () => {
     const maEntry = createMetalArchiveEntry({});
     const result = parseReleaseDates(maEntry);
-    expect<number>(result.firstRelease).toEqual(NaN);
-    expect<number>(result.latestRelease).toEqual(NaN);
-    expect<MetalArchivesEntry>(result.maEntry).toEqual(maEntry);
+    expect<number>(result.firstRelease).toEqual<number>(NaN);
+    expect<number>(result.latestRelease).toEqual<number>(NaN);
+    expect<MetalArchivesEntry>(result.maEntry).toEqual<MetalArchivesEntry>(
+      maEntry
+    );
   });
 
   it("should parse the release dates and turn them into either NaN or a number", () => {
     const maEntry = createMetalArchiveEntry({ "First release": "1994" });
     const result = parseReleaseDates(maEntry);
-    expect<number>(result.firstRelease).toEqual(1994);
-    expect<number>(result.latestRelease).toEqual(NaN);
-    expect<MetalArchivesEntry>(result.maEntry).toEqual(maEntry);
+    expect<number>(result.firstRelease).toEqual<number>(1994);
+    expect<number>(result.latestRelease).toEqual<number>(NaN);
+    expect<MetalArchivesEntry>(result.maEntry).toEqual<MetalArchivesEntry>(
+      maEntry
+    );
   });
 });

@@ -36,7 +36,9 @@ describe("validateCountryCodes", () => {
       countryCodes: new Set(["BR"])
     });
     const result = validateCountryCodes(withUniqueCountryCode);
-    expect<BandInProcessingStep<WithValidatedCountryCode>>(result).toEqual(
+    expect<BandInProcessingStep<WithValidatedCountryCode>>(result).toEqual<
+      BandInProcessingStep<WithValidatedCountryCode>
+    >(
       right(
         createWithValidatedCountryCode({
           countryCode: "BR"
@@ -50,9 +52,9 @@ describe("validateCountryCodes", () => {
       countryCodes: new Set(["BR", "KR"])
     });
     const result = validateCountryCodes(withNonUniqueCountryCode);
-    expect<BandInProcessingStep<WithValidatedCountryCode>>(result).toEqual(
-      left(createFilteredOutEntry({ reason: "Country could not be parsed" }))
-    );
+    expect<BandInProcessingStep<WithValidatedCountryCode>>(result).toEqual<
+      BandInProcessingStep<WithValidatedCountryCode>
+    >(left(createFilteredOutEntry({ reason: "Country could not be parsed" })));
   });
 
   it("should wrap the country codes into a left if no countries could be determined", () => {
@@ -60,8 +62,8 @@ describe("validateCountryCodes", () => {
       countryCodes: new Set()
     });
     const result = validateCountryCodes(withEmptySet);
-    expect<BandInProcessingStep<WithValidatedCountryCode>>(result).toEqual(
-      left(createFilteredOutEntry({ reason: "Country could not be parsed" }))
-    );
+    expect<BandInProcessingStep<WithValidatedCountryCode>>(result).toEqual<
+      BandInProcessingStep<WithValidatedCountryCode>
+    >(left(createFilteredOutEntry({ reason: "Country could not be parsed" })));
   });
 });

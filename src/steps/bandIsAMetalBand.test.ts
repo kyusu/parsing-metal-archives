@@ -29,9 +29,9 @@ describe("bandIsAMetalBand", () => {
       })
     });
     const result = bandIsAMetalBand(metalBand);
-    expect<BandInProcessingStep<WithValidatedCountryCode>>(result).toEqual(
-      right(metalBand)
-    );
+    expect<BandInProcessingStep<WithValidatedCountryCode>>(result).toEqual<
+      BandInProcessingStep<WithValidatedCountryCode>
+    >(right(metalBand));
   });
 
   it("should wrap the entry in a left if it is not a metal band", () => {
@@ -42,8 +42,8 @@ describe("bandIsAMetalBand", () => {
       maEntry
     });
     const result = bandIsAMetalBand(stonerRockBand);
-    expect<BandInProcessingStep<WithValidatedCountryCode>>(result).toEqual(
-      left(createFilteredOutEntry({ reason: "Not a metal band", maEntry }))
-    );
+    expect<BandInProcessingStep<WithValidatedCountryCode>>(result).toEqual<
+      BandInProcessingStep<WithValidatedCountryCode>
+    >(left(createFilteredOutEntry({ reason: "Not a metal band", maEntry })));
   });
 });
