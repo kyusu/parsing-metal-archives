@@ -9,15 +9,14 @@ import {
   bandIsAMetalBand,
   countRejections,
   countryIsNotOnBlackList,
-  validateCountryCodes,
   getCountryCodes,
   getGenres,
   hashMetalArchivesEntry,
-  hasNoEmptyGenre,
   hasReleases,
   parseReleaseDates,
   toReducedBands,
-  toString
+  toString,
+  validateCountryCodes
 } from "./steps";
 
 const metalArchivesExport = "band_20190607.csv";
@@ -47,8 +46,7 @@ const obs = getBandStream(locationOfMetalArchivesExport)
   .pipe(Rx.map(E.chain(validateCountryCodes)))
   .pipe(Rx.map(E.chain(countryIsNotOnBlackList)))
   .pipe(Rx.map(E.chain(bandIsAMetalBand)))
-  .pipe(Rx.map(E.map(getGenres)))
-  .pipe(Rx.map(E.chain(hasNoEmptyGenre)))
+  .pipe(Rx.map(E.chain(getGenres)))
   .pipe(
     Rx.reduce<E.Either<FilteredOutEntry, WithGenreList>, ReducedBands>(
       toReducedBands,
