@@ -6,7 +6,7 @@ import {
   WithValidatedCountryCode
 } from "../types/Band";
 import { isSome, none, Option, option, some } from "fp-ts/lib/Option";
-import { absurd } from "fp-ts/lib/function";
+import { fromOption, map } from "fp-ts/lib/Either";
 import { array } from "fp-ts/lib/Array";
 import {
   isBlackMetal,
@@ -17,7 +17,6 @@ import {
   isSpeedMetal,
   isThrashMetal
 } from "ordo-ab-chao";
-import { left, right } from "fp-ts/lib/Either";
 
 const classifiers = [
   (genre: string): Option<Genres> =>
@@ -44,20 +43,14 @@ const getGenres = (
     .filter(isSome);
 
   const genres = array.sequence(option)(optGenres.length ? optGenres : [none]);
-  switch (genres._tag) {
-    case "Some":
-      return right({
-        ...input,
-        genres: genres.value
-      });
-    case "None":
-      return left<FilteredOutEntry>({
-        reason: "Not in a relevant genre",
-        maEntry: input.maEntry
-      });
-    default:
-      return absurd(genres);
-  }
+  const toEither = fromOption<FilteredOutEntry>(() => ({
+    reason: "Not in a relevant genre",
+    maEntry: input.maEntry
+  }));
+  return map((genres: Genres[]) => ({
+    ...input,
+    genres
+  }))(toEither(genres));
 };
 
 export default getGenres;
