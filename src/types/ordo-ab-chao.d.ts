@@ -1,15 +1,17 @@
 /// <reference types="node" />
 
+type StringPredicate = (input: string) => boolean;
+
 declare module "ordo-ab-chao" {
   export type IsMetal = {
     isMetal: {
-      runWith: (input: string) => boolean;
+      runWith: StringPredicate;
     };
   };
 
   export const isMetal: IsMetal;
 
-  const runWith = { runWith: (input: string) => boolean };
+  const runWith = { runWith: StringPredicate };
 
   export const isBlackMetal = runWith;
   export const isDeathMetal = runWith;

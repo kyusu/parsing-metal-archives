@@ -19,4 +19,4 @@ export type WithIncludedBands = Omit<
   includedBands: IncludedBand[];
 };
 
-export type Overview = {};
+export type Overview = Record<string, unknown>;
