@@ -15,7 +15,7 @@
     "@typescript-eslint/parser": "3.6.1",
     "eslint": "7.5.0",
     "eslint-config-prettier": "6.10.0",
-    "eslint-plugin-jest": "23.7.0",
+    "eslint-plugin-jest": "23.20.0",
     "factoree": "0.1.0",
     "jest": "25.5.4",
     "prettier": "1.19.1",
