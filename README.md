@@ -2,4 +2,4 @@
 [![dependencies Status](https://david-dm.org/kyusu/parsing-metal-archives/status.svg)](https://david-dm.org/kyusu/parsing-metal-archives)
 [![devDependencies Status](https://david-dm.org/kyusu/parsing-metal-archives/dev-status.svg)](https://david-dm.org/kyusu/parsing-metal-archives?type=dev)
 [![Known Vulnerabilities](https://snyk.io/test/github/kyusu/parsing-metal-archives/badge.svg)](https://snyk.io/test/github/kyusu/parsing-metal-archives)
-
+[![Maintainability](https://api.codeclimate.com/v1/badges/b63333ac1a2b6c4e9ab0/maintainability)](https://codeclimate.com/github/kyusu/parsing-metal-archives/maintainability)
