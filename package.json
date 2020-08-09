@@ -20,7 +20,7 @@
     "jest": "25.5.4",
     "prettier": "1.19.1",
     "rimraf": "3.0.2",
-    "ts-jest": "25.5.1",
+    "ts-jest": "26.1.4",
     "tsutils": "3.17.1",
     "typescript": "3.9.7"
   },
