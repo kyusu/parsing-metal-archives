@@ -37,7 +37,7 @@
   "dependencies": {
     "country-list": "2.2.0",
     "country-mapper": "1.2.1",
-    "csv-parse": "4.13.0",
+    "csv-parse": "4.13.1",
     "fp-ts": "2.8.5",
     "object-hash": "2.0.3",
     "ordo-ab-chao": "github:kyusu/ordo-ab-chao",
