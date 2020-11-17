@@ -3,6 +3,10 @@
     "config:base"
   ],
   "packageRules": [
+     {
+      "updateTypes": ["major"],
+      "automerge": false
+    },
     {
       "updateTypes": ["minor", "patch", "pin", "digest"],
       "automerge": true
