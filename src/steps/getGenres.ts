@@ -3,7 +3,7 @@ import {
   FilteredOutEntry,
   Genres,
   WithGenreList,
-  WithValidatedCountryCode
+  WithValidatedCountryCode,
 } from "../types/Band";
 import { isSome, none, Option, option, some } from "fp-ts/lib/Option";
 import { fromOption, map } from "fp-ts/lib/Either";
@@ -15,8 +15,8 @@ import {
   isHeavyMetal,
   isPowerMetal,
   isSpeedMetal,
-  isThrashMetal
-} from "ordo-ab-chao";
+  isThrashMetal,
+} from "@kyusu/ordo-ab-chao";
 
 const classifiers = [
   (genre: string): Option<Genres> =>
@@ -32,24 +32,24 @@ const classifiers = [
   (genre: string): Option<Genres> =>
     isSpeedMetal.runWith(genre) ? some("Speed Metal") : none,
   (genre: string): Option<Genres> =>
-    isThrashMetal.runWith(genre) ? some("Thrash Metal") : none
+    isThrashMetal.runWith(genre) ? some("Thrash Metal") : none,
 ] as const;
 
 const getGenres = (
   input: WithValidatedCountryCode
 ): BandInProcessingStep<WithGenreList> => {
   const optGenres: Option<Genres>[] = classifiers
-    .map(fn => fn(input.maEntry.Genre))
+    .map((fn) => fn(input.maEntry.Genre))
     .filter(isSome);
 
   const genres = array.sequence(option)(optGenres.length ? optGenres : [none]);
   const toEither = fromOption<FilteredOutEntry>(() => ({
     reason: "Not in a relevant genre",
-    maEntry: input.maEntry
+    maEntry: input.maEntry,
   }));
   return map((genres: Genres[]) => ({
     ...input,
-    genres
+    genres,
   }))(toEither(genres));
 };
 

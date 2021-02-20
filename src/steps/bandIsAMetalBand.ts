@@ -1,9 +1,9 @@
 import {
   BandInProcessingStep,
   FilteredOutEntry,
-  WithValidatedCountryCode
+  WithValidatedCountryCode,
 } from "../types/Band";
-import { isMetal } from "ordo-ab-chao";
+import { isMetal } from "@kyusu/ordo-ab-chao";
 import { left, right } from "fp-ts/lib/Either";
 
 const bandIsAMetalBand = (
@@ -13,7 +13,7 @@ const bandIsAMetalBand = (
     ? right(input)
     : left<FilteredOutEntry>({
         reason: "Not a metal band",
-        maEntry: input.maEntry
+        maEntry: input.maEntry,
       });
 
 export default bandIsAMetalBand;
