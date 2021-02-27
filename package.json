@@ -35,7 +35,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@kyusu/ordo-ab-chao": "github:kyusu/ordo-ab-chao",
+    "@kyusu/ordo-ab-chao": "0.0.2",
     "country-list": "2.2.0",
     "country-mapper": "1.2.1",
     "csv-parse": "4.15.3",
