@@ -39,7 +39,7 @@
     "country-list": "2.2.0",
     "country-mapper": "1.2.1",
     "csv-parse": "4.16.3",
-    "fp-ts": "2.11.4",
+    "fp-ts": "2.11.5",
     "object-hash": "2.2.0",
     "ramda": "0.27.1",
     "rxjs": "7.4.0",
