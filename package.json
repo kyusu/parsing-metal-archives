@@ -10,7 +10,7 @@
     "@types/jest": "27.0.3",
     "@types/node": "16.11.15",
     "@types/object-hash": "2.2.1",
-    "@types/ramda": "0.27.60",
+    "@types/ramda": "0.27.61",
     "@typescript-eslint/eslint-plugin": "5.8.0",
     "@typescript-eslint/parser": "5.8.0",
     "eslint": "8.5.0",
