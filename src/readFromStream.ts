@@ -1,6 +1,6 @@
 import { streamToRx } from "rxjs-stream";
 import { createReadStream, PathLike } from "fs";
-import parse from "csv-parse";
+import { parse, Parser } from "csv-parse";
 import { Observable } from "rxjs";
 import { MetalArchivesEntry } from "./types/Band";
 
@@ -8,7 +8,7 @@ export type GetBandStream = (
   filePath: PathLike
 ) => Observable<MetalArchivesEntry>;
 
-const parser: parse.Parser = parse({
+const parser: Parser = parse({
   delimiter: ",",
   columns: true
 });
