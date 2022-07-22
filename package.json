@@ -6,7 +6,7 @@
     "node": ">= 12.13 <17"
   },
   "devDependencies": {
-    "@types/country-list": "2.1.0",
+    "@types/country-list": "2.1.1",
     "@types/jest": "28.1.6",
     "@types/node": "16.11.45",
     "@types/object-hash": "2.2.1",
