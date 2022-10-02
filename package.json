@@ -8,7 +8,7 @@
   "devDependencies": {
     "@types/country-list": "2.1.1",
     "@types/jest": "28.1.8",
-    "@types/node": "16.11.62",
+    "@types/node": "16.11.63",
     "@types/object-hash": "2.2.1",
     "@types/ramda": "0.28.15",
     "@typescript-eslint/eslint-plugin": "5.38.1",
