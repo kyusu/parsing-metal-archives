@@ -43,7 +43,7 @@
     "object-hash": "3.0.0",
     "ramda": "0.28.0",
     "rxjs": "7.5.7",
-    "rxjs-stream": "4.0.2",
+    "rxjs-stream": "5.0.0",
     "tslib": "2.4.0"
   }
 }
