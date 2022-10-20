@@ -1,6 +1,5 @@
 ![Node.js CI](https://github.com/kyusu/parsing-metal-archives/workflows/Node.js%20CI/badge.svg)
-[![dependencies Status](https://david-dm.org/kyusu/parsing-metal-archives/status.svg)](https://david-dm.org/kyusu/parsing-metal-archives)
-[![devDependencies Status](https://david-dm.org/kyusu/parsing-metal-archives/dev-status.svg)](https://david-dm.org/kyusu/parsing-metal-archives?type=dev)
+[![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/kyusu/parsing-metal-archives)](https://libraries.io/github/kyusu/parsing-metal-archives)
 [![Known Vulnerabilities](https://snyk.io/test/github/kyusu/parsing-metal-archives/badge.svg)](https://snyk.io/test/github/kyusu/parsing-metal-archives)
 [![Maintainability](https://api.codeclimate.com/v1/badges/b63333ac1a2b6c4e9ab0/maintainability)](https://codeclimate.com/github/kyusu/parsing-metal-archives/maintainability)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/kyusu/parsing-metal-archives/graphs/commit-activity)
