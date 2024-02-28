@@ -38,7 +38,7 @@
     "@kyusu/ordo-ab-chao": "0.0.2",
     "country-list": "2.3.0",
     "country-mapper": "1.2.1",
-    "csv-parse": "5.5.4",
+    "csv-parse": "5.5.5",
     "fp-ts": "2.16.2",
     "object-hash": "3.0.0",
     "ramda": "0.29.0",
