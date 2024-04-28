@@ -41,7 +41,7 @@
     "csv-parse": "5.5.5",
     "fp-ts": "2.16.5",
     "object-hash": "3.0.0",
-    "ramda": "0.29.1",
+    "ramda": "0.30.0",
     "rxjs": "7.8.1",
     "rxjs-stream": "5.0.0",
     "tslib": "2.6.2"
